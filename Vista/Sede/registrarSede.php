@@ -3,23 +3,23 @@ error_reporting(E_ALL ^ E_NOTICE);
 session_start();
 include("../../Modelo/Sede.php");
 include("../../Control/ControlSede.php");
-/*$bot = $_POST['Boton'];
-$descripcion = $_POST['descripcion'];
+$bot = $_POST['Boton'];
+$descripcion = $_POST['Descripcion'];
 $fechaRe = date("Y-m-d");
-$usuario = $_SESSION['idUsuario'];
+$usuario = $_SESSION['nombre'];
 
 try {
     if ($bot == "Guardar") {
-        $objSede = new Sede("", $descripcion, $fechaRe, $usuario);
+        $objSede = new Sede(0, $descripcion, $fechaRe, $usuario);
         $objCtrSede = new ControlSede($objSede);
-        $msj = $objCtrEquipo->guardarEquipo();
+        $msj = $objCtrSede->guardarSede();
     }
 } catch (Exception $objExp) {
     echo 'Se presentó una excepción: ', $objExp->getMessage(), '\n';
 }
 isset($_SESSION['correo'])  ? $_SESSION['correo'] : header('Location: ../../index.php');
-isset($_SESSION['clave']) ? $_SESSION['clave'] : header('Location: ../../index.php');
-*/ 
+isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../index.php');
+
 
 ?>
 
@@ -105,7 +105,8 @@ isset($_SESSION['clave']) ? $_SESSION['clave'] : header('Location: ../../index.p
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="../../home.php">
                 <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-laugh-wink"></i>
+                    <i class="fa fa-desktop
+                    "></i>
                 </div>
                 <div class="sidebar-brand-text mx-3">FARESCO</sup></div>
             </a>
@@ -176,58 +177,20 @@ isset($_SESSION['clave']) ? $_SESSION['clave'] : header('Location: ../../index.p
             <!-- Divider -->
             <hr class="sidebar-divider">
 
-            <!-- Nav Item - Pages Collapse Menu ENTREGA-->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEntre" aria-expanded="true" aria-controls="collapseEntre">
-                    <i class="fas fa-fw fa-hand-holding"></i>
-                    <span>Entrega</span>
-                </a>
-                <div id="collapseEntre" class="collapse" aria-labelledby="headingEntre" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Menu Entrega:</h6>
-                        <a class="collapse-item" href="../Entrega/registrarEntrega.php">Registrar</a>
-                        <a class="collapse-item" href="../Entrega/consultarEntrega.php">Consultar</a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Nav Item - MENU DEVOLUCION -->
-            <li class="nav-item ">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDevl" aria-expanded="true" aria-controls="collapseDevl">
-                    <i class="fas fa-fw fa-vote-yea"></i>
-                    <span>Devolución</span>
-                </a>
-                <div id="collapseDevl" class="collapse" aria-labelledby="headingDevl" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Menu Devolución:</h6>
-                        <a class="collapse-item" href="../Devolucion/registrarDevolucion.php">Registrar</a>
-                        <a class="collapse-item" href="../Devolucion/consultarDevolucion.php">Consultar</a>
-                        <a class="collapse-item" href="../Devolucion/modificarDevolucion.php">Modificar</a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
+           
 
             <!-- Nav Item - Charts -->
             <li class="nav-item ">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
                     <i class="fas fa-fw fa-ambulance"></i>
-                    <span>Mantenimiento</span>
+                    <span>Fallas</span>
                 </a>
                 <div id="collapseMan" class="collapse" aria-labelledby="headingMan" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Menu Mantenimiento:</h6>
-                        <a class="collapse-item" href="../Mantenimiento/registroMantenimiento.php">Ingreso</a>
-                        <a class="collapse-item" href="../Mantenimiento/salidaMantenimiento.php">Salida</a>
-                        <a class="collapse-item" href="../Mantenimiento/consultarMantenimiento.php">Consultar Entrada</a>
-                        <a class="collapse-item" href="../Mantenimiento/modificarMantenimiento.php">Modificar Entrada</a>
-                        <a class="collapse-item" href="../Mantenimiento/ConsultarSalida.php">Consultar Salida</a>
-                        <a class="collapse-item" href="../Mantenimiento/modificarSalida.php">Modificar Salida</a>
+                        <h6 class="collapse-header">Menu Fallas:</h6>
+                        <a class="collapse-item" href="../Mantenimiento/registroMantenimiento.php">Registrar</a>
+                        <a class="collapse-item" href="../Mantenimiento/salidaMantenimiento.php">Solucionar</a>
+                        <a class="collapse-item" href="../Mantenimiento/consultarMantenimiento.php">Consultar</a>
                     </div>
                 </div>
             </li>
@@ -312,7 +275,7 @@ isset($_SESSION['clave']) ? $_SESSION['clave'] : header('Location: ../../index.p
                                                     <input type="text" class="form-control form-control-user" id="idSede" name="idSede" placeholder="Codigo Sede" readonly>
                                                 </div>
                                                 <div class="col-sm-6 mb-3 mb-sm-0">
-                                                    <input type="text" class="form-control form-control-user" id="Descripcion" name="Descrpicion" placeholder="Nombre Sede" require>
+                                                    <input type="text" class="form-control form-control-user" id="Descripcion" name="Descripcion" placeholder="Nombre Sede" require>
                                                 </div>
                                             </div>
                                             <input type="submit" class="btn btn-success btn-user btn-block" name="Boton" value="Guardar">

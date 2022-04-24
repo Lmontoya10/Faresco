@@ -29,7 +29,7 @@ try {
     echo 'Se presentó una excepción: ', $objExp->getMessage(), '\n';
 }
 isset($_SESSION['correo'])  ? $_SESSION['correo'] : header('Location: ../../index.php');
-isset($_SESSION['clave']) ? $_SESSION['clave'] : header('Location: ../../index.php');
+isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../index.php');
 ?>
 
 <!DOCTYPE html>

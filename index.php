@@ -8,33 +8,59 @@ include("Control/ControlUsuario.php");
 
 if (isset($_POST['boton'])) {
     $bot = $_POST['boton'];
-}
+    /*     $data = array(
+        'coreo'=> $_SESSION['correo'],
+        'clave'=> $_SESSION['password']
+    );
+    echo"<pre>";
+    print_r($data);
+    echo"</pre>";
+    die();
+ */
 $_SESSION['correo'] = $_POST['email'];
 $_SESSION['password'] = $_POST['password'];
-
-/*if (isset($_SESSION['correo'])) {
-    $_SESSION['correo'] = $_POST['email'];
 }
-
-
-if (isset($_SESSION['clave'])) {
-    $_SESSION['clave'] = $_POST['password'];
-}*/
 
 
 
 if (!empty($bot) && $bot == "logout") {
-    $objUsuario = new Usuario("", $_SESSION['correo'], $_SESSION['password'], "", "", "", "");
+    $objUsuario = new Usuario("","", $_SESSION['correo'], "", $_SESSION['password'],"", "");
     $objCrtUsuario = new ControlUsuario($objUsuario);
     $objU = $objCrtUsuario->consultarUsuario();
     $id = $objU->getIdUsuario();
-    $tipo = $objU->getTipo();
-
+    $tipo = $objU->getRol();
 }
 
 
 
 ?>
+<style>
+    .btn-block {
+        background-color: #7a268f !important;
+    }
+
+    .tarjeta {
+        margin-top: 100px;
+    }
+
+    .title {
+        color: #7a268f;
+    }
+
+    #password::placeholder {
+        color: #7a268f;
+    }
+
+    #email::placeholder {
+        color: #7a268f;
+    }
+
+    #email,
+    #password {
+        color: #7a268f;
+    }
+</style>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -55,11 +81,12 @@ if (!empty($bot) && $bot == "logout") {
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
     <!-- Custom styles for this template-->
+    <link href="estilo/myStyle.css" rel="stylesheet" type="text/css">
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-    <link href="estilo/myStyle.css" rel="stylesheet">
+
 </head>
 
-<body class="my-accordion">
+<body class="my-accordion" id="my-accordion">
 
     <?php if (!empty($bot) && $bot == "logout") {
         if (empty($id)) { ?>
@@ -85,9 +112,10 @@ if (!empty($bot) && $bot == "logout") {
                 alerta();
             </script>
     <?php } else {
+
             $_SESSION['idUsuario'] = $objU->getIdUsuario();
             $_SESSION['nombre'] = $objU->getNombre();
-            $_SESSION['rolUsuario'] = $objU->getTipo();
+            $_SESSION['rolUsuario'] = $objU->getRol();
 
             header("Status: 301 Moved Permanently");
             header("Location: home.php");
@@ -100,7 +128,7 @@ if (!empty($bot) && $bot == "logout") {
         <!-- Outer Row -->
         <div class="row justify-content-center">
 
-            <div class="col-xl-10 col-lg-12 col-md-9">
+            <div class="col-xl-10 col-lg-12 col-md-9 tarjeta">
 
                 <div class="card o-hidden border-0 shadow-lg my-5 " style="border-radius: 20px 143px 20px 143px;">
                     <div class="card-body p-0">
@@ -114,7 +142,7 @@ if (!empty($bot) && $bot == "logout") {
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
-                                        <h1 class="h4 text-primary-900 mb-4"> Bienvenido a <strong>Faresco</strong></h1>
+                                        <h1 class="h4 text-primary-900 mb-4 title"> Bienvenido a <strong>Faresco</strong></h1>
                                     </div>
                                     <form class="user" method="POST" action="index.php">
                                         <div class="form-group">
@@ -123,7 +151,7 @@ if (!empty($bot) && $bot == "logout") {
                                         <div class="form-group">
                                             <input type="password" class="form-control form-control-user" id="password" placeholder="password" name="password" required>
                                         </div>
-                                        <input type="submit" class="btn btn-primary btn-user btn-block" name="boton" value="logout">
+                                        <input type="submit" class="btn btn-user btn-block" name="boton" value="logout">
                                     </form>
                                 </div>
                             </div>

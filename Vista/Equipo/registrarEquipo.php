@@ -23,7 +23,7 @@ try {
     echo 'Se presentó una excepción: ', $objExp->getMessage(), '\n';
 }
 isset($_SESSION['correo'])  ? $_SESSION['correo'] : header('Location: ../../index.php');
-isset($_SESSION['clave']) ? $_SESSION['clave'] : header('Location: ../../index.php');
+isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../index.php');
 */ ?>
 
 <!DOCTYPE html>
@@ -161,58 +161,19 @@ isset($_SESSION['clave']) ? $_SESSION['clave'] : header('Location: ../../index.p
             <!-- Divider -->
             <hr class="sidebar-divider">
 
-            <!-- Nav Item - Pages Collapse Menu ENTREGA-->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEntre" aria-expanded="true" aria-controls="collapseEntre">
-                    <i class="fas fa-fw fa-hand-holding"></i>
-                    <span>Entrega</span>
-                </a>
-                <div id="collapseEntre" class="collapse" aria-labelledby="headingEntre" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Menu Entrega:</h6>
-                        <a class="collapse-item" href="../Entrega/registrarEntrega.php">Registrar</a>
-                        <a class="collapse-item" href="../Entrega/consultarEntrega.php">Consultar</a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Nav Item - MENU DEVOLUCION -->
-            <li class="nav-item ">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDevl" aria-expanded="true" aria-controls="collapseDevl">
-                    <i class="fas fa-fw fa-vote-yea"></i>
-                    <span>Devolución</span>
-                </a>
-                <div id="collapseDevl" class="collapse" aria-labelledby="headingDevl" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Menu Devolución:</h6>
-                        <a class="collapse-item" href="../Devolucion/registrarDevolucion.php">Registrar</a>
-                        <a class="collapse-item" href="../Devolucion/consultarDevolucion.php">Consultar</a>
-                        <a class="collapse-item" href="../Devolucion/modificarDevolucion.php">Modificar</a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
 
             <!-- Nav Item - Charts -->
             <li class="nav-item ">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
                     <i class="fas fa-fw fa-ambulance"></i>
-                    <span>Mantenimiento</span>
+                    <span>Fallas</span>
                 </a>
                 <div id="collapseMan" class="collapse" aria-labelledby="headingMan" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Menu Mantenimiento:</h6>
-                        <a class="collapse-item" href="../Mantenimiento/registroMantenimiento.php">Ingreso</a>
-                        <a class="collapse-item" href="../Mantenimiento/salidaMantenimiento.php">Salida</a>
-                        <a class="collapse-item" href="../Mantenimiento/consultarMantenimiento.php">Consultar Entrada</a>
-                        <a class="collapse-item" href="../Mantenimiento/modificarMantenimiento.php">Modificar Entrada</a>
-                        <a class="collapse-item" href="../Mantenimiento/ConsultarSalida.php">Consultar Salida</a>
-                        <a class="collapse-item" href="../Mantenimiento/modificarSalida.php">Modificar Salida</a>
+                        <h6 class="collapse-header">Menu Fallas:</h6>
+                        <a class="collapse-item" href="../Mantenimiento/registroMantenimiento.php">Registrar</a>
+                        <a class="collapse-item" href="../Mantenimiento/salidaMantenimiento.php">Solucionar</a>
+                        <a class="collapse-item" href="../Mantenimiento/consultarMantenimiento.php">Consultar</a>
                     </div>
                 </div>
             </li>
@@ -301,17 +262,24 @@ isset($_SESSION['clave']) ? $_SESSION['clave'] : header('Location: ../../index.p
                                                 </div>
                                             </div>
                                             <div class="form-group row">
-                                                <div class="col-sm-6 mb-3 mb-sm-0">
-                                                    <select class="form-control"  name="Sede" id="Sede"  >
+                                                <div class="col-sm-4 mb-3 mb-sm-0">
+                                                    <select class="form-control" name="Sede" id="Sede">
                                                         <option value=" " default>Seleccione la Sede:</option>
                                                         <option value="saab">Saab</option>
                                                         <option value="mercedes">Mercedes</option>
                                                         <option value="audi">Audi</option>
                                                     </select>
                                                 </div>
-                                                <div class="col-sm-6 mb-3 mb-sm-0">
-                                                <select class="form-control"  name="Sede" id="Sede"  >
-                                                        <option value=" " default>Seleccione el estado:</option>
+                                                <div class="col-sm-4 mb-3 mb-sm-0">
+                                                    <select class="form-control" name="tipo" id="tipo">
+                                                        <option value=" " default>Seleccione tipo:</option>
+                                                        <option value="Portatil">Portatil</option>
+                                                        <option value="Escritorio">Escritorio</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-4 mb-3 mb-sm-0">
+                                                    <select class="form-control" name="Sede" id="Sede">
+                                                        <option value=" " default>Seleccione estado:</option>
                                                         <option value="activo">Activo</option>
                                                         <option value="inactivo">Inactivo</option>
                                                     </select>

@@ -2,60 +2,71 @@
 
 class Usuario{
 
-var $idUusario;
-var $correo;
-var $clave;
-var $rol;
-var $estado;
+var $idUsario;
 var $nombre;
+var $correo;
+var $rol;
+var $clave;
+var $apellido;
+var $tipoDoc;
 
-function __construct($idUusario, $correo, $clave, $tipo, $estado, $nombre)
+
+function __construct($idUsario,$nombre,$correo, $rol,$clave, $apellido, $tipoDoc)
 {
-   $this->idUusario= $idUusario; 
-   $this->correo= $correo;
-   $this->clave = $clave;
-   $this->tipo = $tipo;
-   $this->estado = $estado;
+   $this->idUsario= $idUsario; 
    $this->nombre = $nombre;
+   $this->correo= $correo;
+   $this->rol = $rol;
+   $this->clave = $clave;
+   $this->apellido = $apellido;
+   $this->tipoDoc = $tipoDoc;
 }
 
 function getIdUsuario(){
-    return $this->idUusario;
-}
-function getCorreo(){
-    return $this->correo;
-}
-function getClave(){
-    return $this->clave;
-}
-function getTipo(){
-    return $this->tipo;
-}
-function getEstado(){
-    return $this->estado;
+    return $this->idUsario;
 }
 function getNombre(){
     return $this->nombre;
 }
+function getCorreo(){
+    return $this->correo;
+}
+function getRol(){
+    return $this->rol;
+}
+function getClave(){
+    return $this->clave;
+}
+function getApellido(){
+    return $this->apellido;
+}
+function gettipoDoc(){
+    return $this->tipoDoc;
+}
 
-function setIdUsuario($idUusario){
-    $this->idUusario = $idUusario;
-}
-function setCorreo($correo){
-    $this->correo = $correo;
-}
-function setClave($clave){
-    $this->clave = $clave;
-}
-function setTipo($tipo){
-    $this->tipo = $tipo;
-}
-function setEstado($estado){
-    $this->estado = $estado;
+
+function setIdUsuario($idUsario){
+    $this->idUsario = $idUsario;
 }
 function setNombre($nombre){
     $this->nombre = $nombre;
 }
+function setCorreo($correo){
+    $this->correo = $correo;
+}
+function setRol($rol){
+    $this->rol = $rol;
+}
+function setClave($clave){
+    $this->clave = $clave;
+}
+function setApellido($apellido){
+    $this->apellido = $apellido;
+}
+function setTipoDoc($tipoDoc){
+    $this->tipoDoc = $tipoDoc;
+}
+
 
 }
 ?>

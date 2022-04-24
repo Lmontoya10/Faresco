@@ -34,7 +34,7 @@ try {
     echo 'Se presentó una excepción: ', $objExp->getMessage(), '\n';
 }
 isset($_SESSION['correo'])  ? $_SESSION['correo'] : header('Location: ../../index.php');
-isset($_SESSION['clave']) ? $_SESSION['clave'] : header('Location: ../../index.php');
+isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../index.php');
 ?>
 
 <!DOCTYPE html>
@@ -324,7 +324,7 @@ isset($_SESSION['clave']) ? $_SESSION['clave'] : header('Location: ../../index.p
 
                                                 <div class="form-group row">
                                                     <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <input type="text" class="form-control form-control-user" id="Codigo" name="Codigo" placeholder="Codigo Equipo" required>
+                                                        <input type="text" class="form-control form-control-user" id="Nombre" name="Nombre" placeholder="Nombre Sede" required>
                                                     </div>
                                                 </div>
                                                 <input type="submit" class="btn btn-primary btn-user btn-block" name="Boton" value="Consultar">

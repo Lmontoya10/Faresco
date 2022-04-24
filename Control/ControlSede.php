@@ -46,5 +46,46 @@ function consultarSede(){
     return $this->objUsuario;
 }
 
+function guardarSede()
+    {
+        //SE RECOGEN LOS DATOS DEL OBJETO
+        $msj = "";
+        $oper = 'I';
+        $idSede = $this->objSede->getId();
+        $descripcion = $this->objSede->getDescripcion();
+        $usuario = $this->objSede->getUsuario();
+        $FechaIn= $this->objSede->getFechaCrea();
+
+        //se comprueba que el equipo no este registrado
+        // if ($this->existencia($C) == true) {
+        //     $msj = "ojo";
+        // } else {}
+            $objConexion = new ControlConexion();
+            $conn = $objConexion->conectar();
+
+            $SP = "{call ps_sede(?,?,?,?,?)}";
+
+            $params = array(
+                array($oper, SQLSRV_PARAM_IN), array(&$idSede, SQLSRV_PARAM_IN), array(&$descripcion, SQLSRV_PARAM_IN),
+                array(&$usuario, SQLSRV_PARAM_IN), array(&$FechaIn, SQLSRV_PARAM_IN)
+            );
+
+            /* ejecuta la consulta. */
+            $stmt = sqlsrv_query($conn, $SP, $params);
+
+            if ($stmt === false) {
+                echo "Error ejecutando sentencia guardar sede.\n";
+                die(print_r(sqlsrv_errors(), true));
+            } else {
+                $msj = "ok";
+            }
+            sqlsrv_free_stmt($stmt);
+            sqlsrv_close($conn);
+        
+
+        return $msj;
+    }
+
+
 }
 ?>

@@ -7,7 +7,7 @@ include("Control/ControlDatos.php");
 
 
 isset($_SESSION['correo'])  ? $_SESSION['correo'] : header('Location: index.php');
-isset($_SESSION['clave']) ? $_SESSION['clave'] : header('Location: index.php');
+isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: index.php');
 
 $porE = 0;
 $objCr = new ControlDatos();
@@ -40,7 +40,7 @@ $porE = 0;
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-
+    <link href="estilo/myStyle.css" rel="stylesheet">
 
 </head>
 
