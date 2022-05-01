@@ -5,21 +5,21 @@ class Equipo {
     var $codigo;
     var $marca;
     var $modelo;
-    var $fechaRegistro;
-    var $serial;
+    var $tipo;
+    var $sede;
     var $estado;
-    var $fechaInactivo;
+    var $fechaRegistro;
     var $usuario;
     
-    function __construct($id, $codigo, $marca, $modelo, $fechaRegistro, $fechaInactivo, $serial, $estado, $usuario) {
+    function __construct($id, $codigo, $marca,$modelo, $tipo,$sede,$estado,$fechaRegistro,$usuario) {
         $this->id = $id;
         $this->codigo = $codigo;
         $this->marca = $marca;
         $this->modelo = $modelo;
-        $this->fechaRegistro = $fechaRegistro;
-        $this->fechaInactivo = $fechaInactivo;
-        $this->serial = $serial;
+        $this->sede = $sede;
+        $this->tipo = $tipo;
         $this->estado = $estado;
+        $this->fechaRegistro = $fechaRegistro;
         $this->usuario = $usuario;
     }
 
@@ -38,23 +38,22 @@ class Equipo {
     function getModelo() {
         return $this->modelo;
     }
-
-    function getFechaRegistro() {
-        return $this->fechaRegistro;
+    function getSede() {
+        return $this->sede;
     }
 
-    function getFechaInactivo() {
-        return $this->fechaInactivo;
-    }
-
-    function getSerial() {
-        return $this->serial;
+    function getTipo() {
+        return $this->tipo;
     }
 
     function getEstado() {
         return $this->estado;
     }
-    
+
+    function getFechaRegistro() {
+        return $this->fechaRegistro;
+    }
+
     function getUsuario() {
         return $this->usuario;
     }
@@ -74,21 +73,21 @@ class Equipo {
     function setModelo($modelo) {
         $this->modelo = $modelo;
     }
-
-    function setFechaRegistro($fechaRegistro) {
-        $this->fechaRegistro = $fechaRegistro;
+    
+    function setSede($sede) {
+        $this->sede = $sede;
     }
-
-    function setFechaInactivo($fechaInactivo) {
-        $this->fechaInactivo = $fechaInactivo;
-    }
-
-    function setSerial($serial) {
-        $this->serial = $serial;
+    
+    function setTipo($tipo) {
+        $this->tipo = $tipo;
     }
 
     function setEstado($estado) {
         $this->estado = $estado;
+    }
+
+    function setFechaRegistro($fechaRegistro) {
+        $this->fechaRegistro = $fechaRegistro;
     }
 
     function setUsuario($usuario) {

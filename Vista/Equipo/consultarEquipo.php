@@ -5,13 +5,16 @@ session_start();
 include("../../Modelo/Equipo.php");
 include("../../Control/ControlEquipo.php");
 
-$bot = $_POST['Boton'];
-$codigo = $_POST['Codigo'];
-
+if (isset($_POST['Boton'])) {
+    $bot = $_POST['Boton'];
+    $codigo = $_POST['Codigo'];
+} else {
+    $bot = '';
+}
 try {
 
     if ($bot == "Consultar") {
-        $objEquipo = new Equipo("", $codigo, '', '', '', '', '', '', '');
+        $objEquipo = new Equipo('', $codigo, '', '', '', '', '', '', '');
         $objCtrEquipo = new ControlEquipo($objEquipo);
         $objEquipo = $objCtrEquipo->consultarEquipo();
 
@@ -19,17 +22,18 @@ try {
         $codigo = $objEquipo->getCodigo();
         $marca = $objEquipo->getMarca();
         $modelo = $objEquipo->getModelo();
-        $serial = $objEquipo->getSerial();
+        $tipo = $objEquipo->getTipo();
+        $sede = $objEquipo->getSede();
         $estado = $objEquipo->getEstado();
         $fechaRe = $objEquipo->getFechaRegistro();
-        $fechaInC = $objEquipo->getFechaInactivo();
         $usuario = $objEquipo->getUsuario();
     }
 } catch (Exception $objExp) {
     echo 'Se presentó una excepción: ', $objExp->getMessage(), '\n';
 }
+
 isset($_SESSION['correo'])  ? $_SESSION['correo'] : header('Location: ../../index.php');
-isset($_SESSION['clave']) ? $_SESSION['clave'] : header('Location: ../../index.php');
+isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../index.php');
 ?>
 
 <!DOCTYPE html>
@@ -253,17 +257,24 @@ isset($_SESSION['clave']) ? $_SESSION['clave'] : header('Location: ../../index.p
                                                         <input type="text" class="form-control form-control-user" id="Modelo" name="Modelo" value="<?php echo $modelo ?>" readonly>
                                                     </div>
                                                     <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Serie Equipo:</label>
-                                                        <input type="text" class="form-control form-control-user" id="Serial" name="Serial" value="<?php echo $serial ?>" readonly>
+                                                        <label for="">Sede Equipo:</label>
+                                                        <input type="text" class="form-control form-control-user" id="Sede" name="Sede" value="<?php echo $sede ?>" readonly>
                                                     </div>
                                                 </div>
                                                 <div class="form-group row">
                                                     <div class="col-sm-6 mb-3 mb-sm-0">
+                                                        <label for="">Tipo:</label>
+                                                        <input type="text" class="form-control form-control-user" value="<?php echo $tipo ?>" readonly>
+                                                    </div>
+                                                    <div class="col-sm-6 mb-3 mb-sm-0">
                                                         <label for="">Estado:</label>
                                                         <input type="text" class="form-control form-control-user" id="Estado" name="Estado" value="<?php echo $estado ?>" readonly>
                                                     </div>
+
+                                                </div>
+                                                <div class="form-group row">
                                                     <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Fecha Reserva:</label>
+                                                        <label for="">Fecha Registro:</label>
                                                         <input type="date" class="form-control form-control-user" value="<?php echo $fechaRe ?>" readonly>
                                                     </div>
                                                 </div>

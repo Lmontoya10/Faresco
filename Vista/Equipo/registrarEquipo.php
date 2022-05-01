@@ -1,30 +1,38 @@
 <?php
 error_reporting(E_ALL ^ E_NOTICE);
 session_start();
-include("../../Modelo/Equipo.php");
 include("../../Control/ControlEquipo.php");
+include("../../Modelo/Equipo.php");
+include("../../Modelo/Sede.php");
+include("../../Control/ControlSede.php");
 
-/*$bot = $_POST['Boton'];
-$codigo = $_POST['Codigo'];
-$marca = $_POST['Marca'];
-$modelo = $_POST['Modelo'];
-$serial = $_POST['Serial'];
-$fechaRe = date("Y-m-d");
-$usuario = $_SESSION['idUsuario'];
-$estado = "Activo";
 
-try {
-    if ($bot == "Guardar") {
-        $objEquipo = new Equipo("", $codigo, $marca, $modelo, $fechaRe, "", $serial, $estado, $usuario);
-        $objCtrEquipo = new ControlEquipo($objEquipo);
-        $msj = $objCtrEquipo->guardarEquipo();
+if (isset($_POST['boton'])) {
+    $bot = $_POST['boton'];
+    $codigo = $_POST['Codigo'];
+    $marca = $_POST['Marca'];
+    $tipo = $_POST['tipo'];
+    $modelo = $_POST['Modelo'];
+    $sede = $_POST['Sede'];
+    $fechaRe = date("Y-m-d");
+    $usuario = $_SESSION['correo'];
+    $estado = $_POST['Estado'];
+
+
+    try {
+        if ($bot == "Guardar") {
+            $objEquipo = new Equipo("", $codigo, $marca, $modelo, $tipo, $sede, $estado, $fechaRe, $usuario);
+            $objCtrEquipo = new ControlEquipo($objEquipo);
+            $msj = $objCtrEquipo->guardarEquipo();
+        }
+    } catch (Exception $objExp) {
+        echo 'Se presentó una excepción: ', $objExp->getMessage(), '\n';
     }
-} catch (Exception $objExp) {
-    echo 'Se presentó una excepción: ', $objExp->getMessage(), '\n';
 }
+
 isset($_SESSION['correo'])  ? $_SESSION['correo'] : header('Location: ../../index.php');
 isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../index.php');
-*/ ?>
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -254,20 +262,24 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                                         </div>
                                         <form class="user" method="Post" action="registrarEquipo.php">
                                             <div class="form-group row">
-                                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                                <div class="col-sm-4 mb-3 mb-sm-0">
                                                     <input type="text" class="form-control form-control-user" id="Codigo" name="Codigo" placeholder="Codigo Equipo" require>
                                                 </div>
-                                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                                <div class="col-sm-4 mb-3 mb-sm-0">
                                                     <input type="text" class="form-control form-control-user" id="Marca" name="Marca" placeholder="Marca Equipo" require>
+                                                </div>
+                                                <div class="col-sm-4 mb-3 mb-sm-0">
+                                                    <input type="text" class="form-control form-control-user" id="Modelo" name="Modelo" placeholder="Modelo Equipo" require>
                                                 </div>
                                             </div>
                                             <div class="form-group row">
                                                 <div class="col-sm-4 mb-3 mb-sm-0">
                                                     <select class="form-control" name="Sede" id="Sede">
-                                                        <option value=" " default>Seleccione la Sede:</option>
-                                                        <option value="saab">Saab</option>
-                                                        <option value="mercedes">Mercedes</option>
-                                                        <option value="audi">Audi</option>
+                                                        <?php
+                                                        $objSede = new Sede(0, "", "", "");
+                                                        $objCtrSede = new ControlSede($objSede);
+                                                        $result = $objCtrSede->consultarSedes();
+                                                        ?>
                                                     </select>
                                                 </div>
                                                 <div class="col-sm-4 mb-3 mb-sm-0">
@@ -278,7 +290,7 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                                                     </select>
                                                 </div>
                                                 <div class="col-sm-4 mb-3 mb-sm-0">
-                                                    <select class="form-control" name="Sede" id="Sede">
+                                                    <select class="form-control" name="Estado" id="Estado">
                                                         <option value=" " default>Seleccione estado:</option>
                                                         <option value="activo">Activo</option>
                                                         <option value="inactivo">Inactivo</option>

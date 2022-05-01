@@ -1,62 +1,54 @@
 <?php
 error_reporting(E_ALL ^ E_NOTICE);
 session_start();
-
 include("../../Modelo/Equipo.php");
-include("../../Modelo/Sede.php");
+include("../../Modelo/Reserva.php");
+include("../../Control/ControlReserva.php");
 include("../../Control/ControlEquipo.php");
-include("../../Control/ControlSede.php");
 
-
-if (isset($_POST['Boton'])) {
-    $bot = $_POST['Boton'];
-    $id = $_POST['id'];
-    $codigo = $_POST['Codigo'];
-    $marca = $_POST['Marca'];
-    $modelo = $_POST['Modelo'];
-    $tipo =  $_POST['Tipo'];
-    $sede = $_POST['sede'];
-    $estado = $_POST['Estado'];
-    $fechaRe = $_POST['FechaRe'];
-    $usuario = $_SESSION['idUsuario'];
-
-    if ($estado == "Inactivo") {
-        $fechaInC = date("Y-m-d");
-    }
-} else {
-    $bot = '';
-}
-
-
-
+$bot = $_POST['Boton'];
+$id = $_POST['id'];
 try {
-
     if ($bot == "Consultar") {
-        $objEquipo = new Equipo('', $codigo, '', '', '', '', '', '', '');
-        $objCtrEquipo = new ControlEquipo($objEquipo);
-        $objEquipo = $objCtrEquipo->consultarEquipo();
-
-        $id = $objEquipo->getId();
-        $codigo = $objEquipo->getCodigo();
-        $marca = $objEquipo->getMarca();
-        $modelo = $objEquipo->getModelo();
-        $tipo = $objEquipo->getTipo();
-        $sede = $objEquipo->getSede();
-        $estado = $objEquipo->getEstado();
-        $fechaRe = $objEquipo->getFechaRegistro();
-        $usuario = $objEquipo->getUsuario();
-    }
-    if ($bot == "Modificar") {
-
-        $objSede = new Sede(0, $sede, '', '');
-        $objCtrSede = new ControlSede($objSede);
-        $objSede = $objCtrSede->consultarSede();
-        $codSede = $objSede->getId();
+        $objReserva = new Reserva($id, '', '', '', '', '', '', '', '', '');
+        $objCtrReserva = new ControlReserva($objReserva);
+        $objRes = $objCtrReserva->consultarReserva();
 
 
-        $objEquipo = new Equipo($id, $codigo, $marca, $modelo, $tipo, $codSede, $estado, $fechaRe, $usuario);
-        $objCtrEquipo = new ControlEquipo($objEquipo);
-        $msj = $objCtrEquipo->modificarEquipo();
+        if (!empty($objRes->getFechaRes())) {
+            $idRe = $objRes->getIdReserva();
+            $usuario = $objRes->getUsuario();
+            $equipo = $objRes->getEquipo();
+            $fechaRes = $objRes->getFechaRes();
+            $horaI = $objRes->getHoraIni()->format('H:i');
+            $horaF = $objRes->getHoraFin()->format('H:i');
+            $fechaReg = $objRes->getFechaReg();
+            $sede = $objRes->getSede();
+
+
+            switch ($objRes->getEstado()) {
+                case "A":
+                    $estado = "ACTIVA";
+                    break;
+                case "C":
+                    $estado = "CANCELADO";
+                    break;
+                case "E":
+                    $estado = "EN USO";
+                    break;
+                case "S":
+                    $estado = "ANULADA";
+                    break;
+                case "U":
+                    $estado = "CERRADA";
+                    break;
+            }
+        }
+    } elseif ($bot == "Cancelar Reserva") {
+        $estado = "C";
+        $objReserva = new Reserva($id, '', '', '', '', '', '', '',$estado);
+        $objCtrReserva = new ControlReserva($objReserva);
+        $msj = $objCtrReserva->cancelarReserva();
     }
 } catch (Exception $objExp) {
     echo 'Se presentó una excepción: ', $objExp->getMessage(), '\n';
@@ -64,9 +56,8 @@ try {
 isset($_SESSION['correo'])  ? $_SESSION['correo'] : header('Location: ../../index.php');
 isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../index.php');
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="utf-8">
@@ -75,7 +66,7 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Modificar Equipo</title>
+    <title>Consultar Reserva</title>
     <!-- ALERTAS-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.0/sweetalert2.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.0/sweetalert2.js"></script>
@@ -86,54 +77,54 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
 
     <!-- Custom styles for this template-->
     <link href="../../css/sb-admin-2.min.css" rel="stylesheet">
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
     <link href="../../estilo/myStyle.css" rel="stylesheet">
 
 </head>
 
 <body id="page-top">
-    <?php if (isset($msj) && $bot == "Modificar") {
-        if ($msj == "ok") { ?>
-            <script>
-                alerta();
-
-                function alerta() {
-                    swal({
-                        title: "Bien hecho...",
-                        text: "Datos Modificados!",
-                        type: "success",
-                    });
-                }
-            </script>
-        <?php } else { ?>
-            <script>
-                alerta1();
-
-                function alerta1() {
-                    swal({
-                        title: "Oops...",
-                        text: "Algo salio mal!",
-                        type: "error",
-                    });
-                }
-            </script>
-        <?php }
-    }
-    if ($bot == "Consultar" && empty($id)) { ?>
+    <?php if ($bot == "Consultar" && empty($idRe)) { ?>
         <script>
-            alerta2();
+            alerta();
 
-            function alerta2() {
+            function alerta() {
                 swal({
                     title: "Oops...",
-                    text: "Equipo no registrado!",
+                    text: "No existen reservas con ese numero!",
                     type: "warning",
                 });
             }
         </script>
+    <?php }
+    if ($bot == "Cancelar Reserva"  && isset($msj)) { ?>
+        <script>
+            alerta();
+
+            function alerta() {
+                swal({
+                    title: "Bien hecho...",
+                    text: "Reserva cancelada con exito!",
+                    type: "success",
+                });
+            }
+        </script>
+    <?php } elseif ($bot == "Cancelar Reserva" && empty($msj)) { ?>
+        <script>
+            alerta();
+
+            function alerta() {
+                swal({
+                    title: "Oops...",
+                    text: "Algo salio mal..!",
+                    type: "error",
+                });
+            }
+        </script>
     <?php } ?>
+
     <!-- Page Wrapper -->
     <div id="wrapper">
-
         <!-- Sidebar -->
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar">
 
@@ -142,7 +133,7 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">FARESCO</sup></div>
+                <div class="sidebar-brand-text mx-3">Faresco</div>
             </a>
 
             <!-- Divider -->
@@ -154,60 +145,69 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                     <i class="fas fa-home "></i>
                     <span>Home</span></a>
             </li>
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Nav Item - Pages Collapse Menu Equipos-->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEqui" aria-expanded="true" aria-controls="collapseEqui">
-                    <i class="fas fa-laptop fa-cog"></i>
-                    <span>Equipo</span>
-                </a>
-                <div id="collapseEqui" class="collapse" aria-labelledby="headingEqui" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Menu Equipo</h6>
-                        <a class="collapse-item" href="registrarEquipo.php">Registrar</a>
-                        <a class="collapse-item" href="consultarEquipo.php">Consultar</a>
-                    </div>
-                </div>
-            </li>
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReser" aria-expanded="true" aria-controls="collapseReser">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Reserva</span>
-                </a>
-                <div id="collapseReser" class="collapse" aria-labelledby="headingReser" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Menu Reserva:</h6>
-                        <a class="collapse-item" href="../Reserva/registrarReserva.php">Registrar</a>
-                        <a class="collapse-item" href="../Reserva/consultarReserva.php">Consultar</a>
-                        <a class="collapse-item" href="../Reserva/modificarReserva.php">Modificar</a>
-                    </div>
-                </div>
-            </li>
 
             <!-- Divider -->
             <hr class="sidebar-divider">
-
-            <!-- Nav Item - Charts -->
-            <li class="nav-item ">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
-                    <i class="fas fa-fw fa-ambulance"></i>
-                    <span>Fallas</span>
-                </a>
-                <div id="collapseMan" class="collapse" aria-labelledby="headingMan" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Menu Fallas:</h6>
-                        <a class="collapse-item" href="../Mantenimiento/registroMantenimiento.php">Registrar</a>
-                        <a class="collapse-item" href="../Mantenimiento/salidaMantenimiento.php">Solucionar</a>
-                        <a class="collapse-item" href="../Mantenimiento/consultarMantenimiento.php">Consultar Entrada</a>
+            <!--VALIDACION DE ROLES-->
+            <?php if ($_SESSION['rolUsuario'] == "1") { ?>
+                <!-- Nav Item - Pages Collapse Menu Equipos-->
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEqui" aria-expanded="true" aria-controls="collapseEqui">
+                        <i class="fas fa-laptop fa-cog"></i>
+                        <span>Equipo</span>
+                    </a>
+                    <div id="collapseEqui" class="collapse" aria-labelledby="headingEqui" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Menu Equipo</h6>
+                            <a class="collapse-item" href="../Equipo/registrarEquipo.php">Registrar</a>
+                            <a class="collapse-item" href="../Equipo/consultarEquipo.php">Consultar</a>
+                            <a class="collapse-item" href="../Equipo/modificarEquipo.php">Modificar</a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+                <!-- Divider -->
+                <hr class="sidebar-divider d-none d-md-block">
+            <?php } ?>
+            <!-- VALIDACION DE ROLES-->
+            <?php if ($_SESSION['rolUsuario'] == "1" || $_SESSION['rolUsuario'] == "2") { ?>
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReser" aria-expanded="true" aria-controls="collapseReser">
+                        <i class="fas fa-fw fa-table"></i>
+                        <span>Reserva</span>
+                    </a>
+                    <div id="collapseReser" class="collapse" aria-labelledby="headingReser" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Menu Reserva:</h6>
+                            <a class="collapse-item" href="registrarReserva.php">Registrar</a>
+                            <?php if ($_SESSION['rolUsuario'] == "1") { ?>
+                                <a class="collapse-item" href="modificarReserva.php">Modificar</a>
+                            <?php } ?>
+                        </div>
+                    </div>
+                </li>
+            <?php } ?>
+            <?php if ($_SESSION['rolUsuario'] == "1") { ?>
 
+                <!-- Divider -->
+                <hr class="sidebar-divider">
+
+                <!-- Nav Item - Charts -->
+                <li class="nav-item ">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
+                        <i class="fas fa-fw fa-ambulance"></i>
+                        <span>Fallas</span>
+                    </a>
+                    <div id="collapseMan" class="collapse" aria-labelledby="headingMan" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Menu Fallas:</h6>
+                            <a class="collapse-item" href="../Vista/Mantenimiento/registroMantenimiento.php">Registrar</a>
+                            <a class="collapse-item" href="../Vista/Mantenimiento/salidaMantenimiento.php">Solucionar</a>
+                            <a class="collapse-item" href="../Vista/Mantenimiento/consultarMantenimiento.php">Consultar</a>
+                        </div>
+                    </div>
+                </li>
+                <!--FIN VALIDACION ROL ASDMINISTRADOR-->
+            <?php } ?>
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -280,87 +280,61 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                                 <div class="col-lg-8">
                                     <div class="p-5">
                                         <div class="text-center">
-                                            <h1 class="h4 text-gray-900 mb-4">Modificar Equipo</h1>
-                                        </div>
-                                        <form class="user" method="Post" action="modificarEquipo.php">
-                                            <?php if ($bot == "Consultar" && $id != "") { ?>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Codigo:</label>
-                                                        <input type="text" class='form-control form-control-user' id='id' name='id' hidden value="<?php echo $id ?>">
-                                                        <input type="text" class="form-control form-control-user" id="Codigo" name="Codigo" placeholder="Codigo Equipo" value="<?php echo $codigo ?>">
-                                                    </div>
-                                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Marca:</label>
-                                                        <input type="text" class="form-control form-control-user" id="Marca" name="Marca" placeholder="Marca Equipo" value="<?php echo $marca ?>">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Modelo:</label>
-                                                        <input type="text" class="form-control form-control-user" id="Modelo" name="Modelo" placeholder="Modelo Equipo" value="<?php echo $modelo ?>">
-                                                    </div>
-                                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Sede:</label>
-                                                        <input type="text" id="sede" name="sede" class="form-control form-control-user" value="<?php echo $sede ?>" readonly>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Tipo Equipo:</label>
-                                                        <select id="Tipo" name="Tipo" class="form-control form-control-select">
-                                                            <?php
-                                                            if ($tipo == "Escritorio") {
-                                                            ?>
-                                                                <option value="Escritorio">Escritorio</option>
-                                                                <option value="Portatil">Portatil</option>
-                                                            <?php
-                                                            } else {
-                                                            ?>
-                                                                <option value="Portatil">Portatil</option>
-                                                                <option value="Escritorio">Escritorio</option>
-                                                            <?php
-                                                            }
-                                                            ?>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Estado:</label>
-                                                        <select id="Estado" name="Estado" class="form-control form-control-select">
-                                                            <?php
-                                                            if ($estado == "Activo") {
-                                                            ?>
-                                                                <option value="Activo">Activo</option>
-                                                                <option value="Inactivo">Inactivo</option>
-                                                            <?php
-                                                            } else {
-                                                            ?>
-                                                                <option value="Inactivo">Inactivo</option>
-                                                                <option value="Activo">Activo</option>
-                                                            <?php
-                                                            }
-                                                            ?>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Fecha Registro:</label>
-                                                        <input type="date" id="FechaRe" name="FechaRe" class="form-control form-control-user" value="<?php echo $fechaRe ?>" readonly>
-                                                    </div>
-                                                </div>
-
-
-                                                <input type="submit" class="btn btn-success btn-user btn-block" name="Boton" value="Modificar">
+                                            <?php if ($bot == "Consultar" && $fechaReg != '') { ?>
+                                                <h1 class="h4 text-gray-900 mb-4">Cancelar Reserva</h1>
                                             <?php } else { ?>
+                                                <h1 class="h4 text-gray-900 mb-4">Consultar Reserva</h1>
+                                            <?php } ?>
+                                        </div>
+                                        <form class="user" method="Post" action="consultarReserva.php">
+                                            <?php if ($bot == "Consultar" && $fechaReg != '') { ?>
+                                                <div class="form-group row">
+                                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                                        <label for="">Nro Reserva</label>
+                                                        <input type="text" class="form-control form-control-user" id="id" name="id" value="<?php echo $idRe; ?>" readonly>
+                                                    </div>
+                                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                                        <label for="">Fecha Reserva</label>
+                                                        <input type="date" class="form-control form-control-user" id="Fecha" name="Fecha" value="<?php echo $fechaRes; ?>" readonly>
+                                                    </div>
+                                                </div>
 
                                                 <div class="form-group row">
                                                     <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <input type="text" class="form-control form-control-user" id="Codigo" name="Codigo" placeholder="Codigo Equipo" required>
+                                                        <label for="">Hora Inicio</label>
+                                                        <input type="time" id="HoraIni" name='HoraIni' class="form-control form-control-user" value="<?php echo $horaI; ?>" readonly>
+
+                                                    </div>
+                                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                                        <label for="">Hora Fin</label>
+                                                        <input type="time" id="HoraFin" name='HoraFin' class="form-control form-control-user" value="<?php echo $horaF; ?>" readonly>
+
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                                        <label>Equipo</label>
+                                                        <input id="Equipo" name='Equipo' class="form-control form-control-user" value="<?php echo $equipo; ?>" readonly>
+                                                    </div>
+                                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                                        <label>Sede</label>
+                                                        <input id="Sede" name='Sede' class="form-control form-control-user" value="<?php echo $sede; ?>" readonly>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                                        <label>Estado</label>
+                                                        <input id="Estado" name='Estado' class="form-control form-control-user" value="<?php echo $estado; ?>" readonly>
+                                                    </div>
+                                                </div>
+                                                <input type="submit" class="btn btn-success btn-user btn-block" name="Boton" value="Cancelar Reserva">
+                                            <?php } else { ?>
+                                                <div class="form-group row">
+                                                    <div class="col-sm-6 mb-3 mb-sm-0">
+                                                        <input type="number" class="form-control form-control-user" id="id" name="id" min="0" placeholder="Nro Reserva" required>
                                                     </div>
                                                 </div>
                                                 <input type="submit" class="btn btn-primary btn-user btn-block" name="Boton" value="Consultar">
-
                                             <?php } ?>
                                         </form>
                                     </div>
@@ -374,10 +348,8 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
 
             </div>
             <!-- End of Main Content -->
-
         </div>
         <!-- End of Content Wrapper -->
-
     </div>
     <!-- End of Page Wrapper -->
 
@@ -404,7 +376,6 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
             </div>
         </div>
     </div>
-
     <!-- Bootstrap core JavaScript-->
     <script src="../../vendor/jquery/jquery.min.js"></script>
     <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -414,5 +385,4 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
 
     <!-- Custom scripts for all pages-->
     <script src="../../js/sb-admin-2.min.js"></script>
-
 </body>
