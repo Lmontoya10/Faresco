@@ -3,13 +3,20 @@ error_reporting(E_ALL ^ E_NOTICE);
 session_start();
 include("../../Modelo/Sede.php");
 include("../../Control/ControlSede.php");
-$bot = $_POST['Boton'];
-$descripcion = $_POST['Descripcion'];
+include("../../Control/ControlConexion.php");
+
+if (isset($_POST['Boton'])  && !empty($_POST['Boton'])) {
+    $bot = $_POST['Boton'];
+} else{
+    $bot='';
+}
+
 $fechaRe = date("Y-m-d");
 $usuario = $_SESSION['nombre'];
 
 try {
     if ($bot == "Guardar") {
+        $descripcion = $_POST['Descripcion'];
         $objSede = new Sede(0, $descripcion, $fechaRe, $usuario);
         $objCtrSede = new ControlSede($objSede);
         $msj = $objCtrSede->guardarSede();
@@ -134,7 +141,6 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Menu Sede</h6>
                         <a class="collapse-item" href="../Sede/consultarSede.php">Consultar</a>
-                        <a class="collapse-item" href="../Sede/modificarSede.php">Modificar</a>
                     </div>
                 </div>
             </li>
@@ -177,7 +183,7 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
             <!-- Divider -->
             <hr class="sidebar-divider">
 
-           
+
 
             <!-- Nav Item - Charts -->
             <li class="nav-item ">

@@ -7,8 +7,8 @@ include("../../Modelo/Sede.php");
 include("../../Control/ControlSede.php");
 
 
-if (isset($_POST['boton'])) {
-    $bot = $_POST['boton'];
+if (isset($_POST['Boton'])  && !empty($_POST['Boton'])) {
+    $bot = $_POST['Boton'];
     $codigo = $_POST['Codigo'];
     $marca = $_POST['Marca'];
     $tipo = $_POST['tipo'];
@@ -17,18 +17,26 @@ if (isset($_POST['boton'])) {
     $fechaRe = date("Y-m-d");
     $usuario = $_SESSION['correo'];
     $estado = $_POST['Estado'];
-
-
-    try {
-        if ($bot == "Guardar") {
-            $objEquipo = new Equipo("", $codigo, $marca, $modelo, $tipo, $sede, $estado, $fechaRe, $usuario);
-            $objCtrEquipo = new ControlEquipo($objEquipo);
-            $msj = $objCtrEquipo->guardarEquipo();
-        }
-    } catch (Exception $objExp) {
-        echo 'Se presentó una excepción: ', $objExp->getMessage(), '\n';
-    }
+} else {
+    $bot = '';
 }
+
+
+
+
+try {
+    if ($bot == "Guardar") {
+        $objEquipo = new Equipo("", $codigo, $marca, $modelo, $tipo, $sede, $estado, $fechaRe, $usuario);
+        $objCtrEquipo = new ControlEquipo($objEquipo);
+        $msj = $objCtrEquipo->guardarEquipo();
+    }
+} catch (Exception $objExp) {
+    echo 'Se presentó una excepción: ', $objExp->getMessage(), '\n';
+}
+
+$objSede = new Sede(0, "", "", "");
+$objCtrSede = new ControlSede($objSede);
+$sedes = $objCtrSede->consultarSedes();
 
 isset($_SESSION['correo'])  ? $_SESSION['correo'] : header('Location: ../../index.php');
 isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../index.php');
@@ -38,6 +46,7 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
 <html lang="en">
 
 <head>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -62,9 +71,22 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
     <script src="dist/sweetalert.min.js"></script>
     <link rel="stylesheet" type="text/css" href="dist/sweetalert.css">
 
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- select2 css -->
+    <link href='select2/dist/css/select2.min.css' rel='stylesheet' type='text/css'>
+
+    <!-- select2 script -->
+    <script src='select2/dist/js/select2.min.js'></script>
 
 
 </head>
+<style>
+    .my-select {
+        border-radius: 20px;
+    }
+</style>
 
 <body id="page-top">
     <?php if (isset($msj)) {
@@ -274,23 +296,24 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                                             </div>
                                             <div class="form-group row">
                                                 <div class="col-sm-4 mb-3 mb-sm-0">
-                                                    <select class="form-control" name="Sede" id="Sede">
+                                                    <select class="form-control my-select" name="Sede" id="Sede">
+                                                        <option value=" " default>Seleccione sede:</option>
                                                         <?php
-                                                        $objSede = new Sede(0, "", "", "");
-                                                        $objCtrSede = new ControlSede($objSede);
-                                                        $result = $objCtrSede->consultarSedes();
-                                                        ?>
+
+                                                        foreach ($sedes as  $sede) : ?>
+                                                            <option value="<?= $sede['id'] ?>"><?= $sede['nombre'] ?></option>
+                                                        <?php endforeach; ?>
                                                     </select>
                                                 </div>
                                                 <div class="col-sm-4 mb-3 mb-sm-0">
-                                                    <select class="form-control" name="tipo" id="tipo">
+                                                    <select class="form-control my-select" name="tipo" id="tipo">
                                                         <option value=" " default>Seleccione tipo:</option>
                                                         <option value="Portatil">Portatil</option>
                                                         <option value="Escritorio">Escritorio</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-sm-4 mb-3 mb-sm-0">
-                                                    <select class="form-control" name="Estado" id="Estado">
+                                                    <select class="form-control my-select" name="Estado" id="Estado">
                                                         <option value=" " default>Seleccione estado:</option>
                                                         <option value="activo">Activo</option>
                                                         <option value="inactivo">Inactivo</option>

@@ -6,33 +6,49 @@ include("../../Modelo/Reserva.php");
 include("../../Modelo/Sede.php");
 include("../../Control/ControlReserva.php");
 include("../../Control/ControlEquipo.php");
+include("../../Control/ControlSede.php");
 
 date_default_timezone_set("America/Bogota");
 $HoraActual = date("G");  // Hora actual en 24 hrs del País
 $fcha = date("Y-m-d");
 
-$bot = $_POST['Boton'];
-$FechaRes = $_POST['Fecha'];
-$HoraIni = $_POST['HoraIni'];
-$HoraFin = $_POST['HoraFin'];
-$Usuario = $_SESSION['idUsuario'];
-$estado = "A";
-$equipo = $_POST['Equipo'];
-$sede = $_POST['Sede'];
+if (isset($_POST['Boton'])  && !empty($_POST['Boton'])) {
+    $bot = $_POST['Boton'];
+} else {
+    $bot = '';
+}
+
+// if ($_POST['idSede']) {
+//     return json_encode($_POST['idSede']); 
+//     echo ($_POST['idSede']);
+//     die();
+// }
+
 
 try {
     if ($bot == "Guardar") {
+        $FechaRes = $_POST['Fecha'];
+        $HoraIni = $_POST['HoraIni'];
+        $HoraFin = $_POST['HoraFin'];
+        $Usuario = $_SESSION['idUsuario'];
+        $estado = "A";
+        $equipo = $_POST['equipo'];
+        $sede = $_POST['Sede'];
         $objReserva = new Reserva(0, $FechaRes, $HoraIni, $HoraFin, $fcha, $equipo, $sede, $Usuario, $estado);
         $objCtrReserva = new ControlReserva($objReserva);
         $msj = $objCtrReserva->GuardarReserva();
-
     }
-
 } catch (Exception $objExp) {
     echo 'Se presentó una excepción: ', $objExp->getMessage(), '\n';
 }
 isset($_SESSION['correo'])  ? $_SESSION['correo'] : header('Location: ../../index.php');
 isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../index.php');
+
+
+
+$objSede = new Sede(0, "", "", "");
+$objCtrSede = new ControlSede($objSede);
+$sedes = $objCtrSede->consultarSedes();
 
 ?>
 
@@ -166,14 +182,16 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                 <li class="nav-item ">
                     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
                         <i class="fas fa-fw fa-ambulance"></i>
-                        <span>Mantenimiento</span>
+                        <span>Falla</span>
                     </a>
                     <div id="collapseMan" class="collapse" aria-labelledby="headingMan" data-parent="#accordionSidebar">
                         <div class="bg-white py-2 collapse-inner rounded">
                             <h6 class="collapse-header">Menu Fallas:</h6>
-                            <a class="collapse-item" href="../Mantenimiento/registroMantenimiento.php">Registrar</a>
-                            <a class="collapse-item" href="../Mantenimiento/salidaMantenimiento.php">Solucionar</a>
-                            <a class="collapse-item" href="../Mantenimiento/consultarMantenimiento.php">Consultar Entrada</a>
+                            <a class="collapse-item" href="../Falla/registrarFalla.php">Registrar</a>
+                            <?php if ($_SESSION['rolUsuario'] == "1") { ?>
+                            <a class="collapse-item" href="../Falla/solucionarFalla.php">Solucionar</a>
+                            <a class="collapse-item" href="../Falla/consultarFalla.php">Consultar</a>
+                            <?php } ?>
                         </div>
                     </div>
                 </li>
@@ -217,18 +235,7 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                                <!-- <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Perfil
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Configuracion
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Activity Log
-                                </a> -->
+
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -251,97 +258,125 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                                 <div class="col-lg-8">
                                     <div class="p-5">
 
-                                        <?php if (!empty($msj) && $bot == "Guardar") { ?>
 
-                                            <p>Tomar pantallazo del QR para reclamar el equipo<br>
-                                                <br>Gracias...
-                                            </p>
-                                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#QrModal">
-                                                Genarar QR
-                                            </button>
+                                        <div class="text-center">
+                                            <h1 class="h4 text-gray-900 mb-4">Registrar Reserva</h1>
+                                            <a class="collapse-item" href="../../Control/controlEquipo.php/consultarEquipoSede">Enviar</a>
+                                        </div>
+                                        <form class="user" method="POST" action="registrarReserva.php">
 
-                                        <?php } else { ?>
-
-                                            <div class="text-center">
-                                                <h1 class="h4 text-gray-900 mb-4">Registrar Reserva</h1>
+                                            <div class="form-group row">
+                                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                                    <label for="">Fecha:</label>
+                                                    <input type="date" class="form-control form-control-user" value="<?php echo $fcha ?>" readonly>
+                                                </div>
+                                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                                    <label for="">Fecha Reserva</label>
+                                                    <input type="date" class="form-control form-control-user" id="Fecha" name="Fecha" min="<?php $fcha ?>" placeholder="Fecha Reserva" value="<?php echo $fcha ?>" required onchange="diaSemana();">
+                                                </div>
                                             </div>
-                                            <form class="user" method="POST" action="registrarReserva.php">
 
-                                                <div class="form-group row">
-                                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Fecha:</label>
-                                                        <input type="date" class="form-control form-control-user" value="<?php echo $fcha ?>" readonly>
-                                                    </div>
-                                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Fecha Reserva</label>
-                                                        <input type="date" class="form-control form-control-user" id="Fecha" name="Fecha" min="<?php $fcha ?>" placeholder="Fecha Reserva" value="<?php echo $fcha ?>" required onchange="diaSemana();">
-                                                    </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                                    <label for="">Hora Inicio</label>
+                                                    <input type="time" id="HoraIni" name='HoraIni' class="form-control form-control-user" min="07:00" max="17:30" required onchange="horas();">
+                                                    <label for="">Entre 7:00am y 16:30pm</label>
                                                 </div>
-
-                                                <div class="form-group row">
-                                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Hora Inicio</label>
-                                                        <input type="time" id="HoraIni" name='HoraIni' class="form-control form-control-user" min="07:00" max="17:30" required onchange="horas();">
-                                                        <label for="">Entre 7:00am y 16:30pm</label>
-                                                    </div>
-                                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Hora Fin</label>
-                                                        <input type="time" id="HoraFin" name='HoraFin' class="form-control form-control-user" min="07:30" max="18:00" required onchange="diaSemana(); dias();">
-                                                        <label for="text-red">Entre 7:30am y 18:00pm</label>
-                                                    </div>
+                                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                                    <label for="">Hora Fin</label>
+                                                    <input type="time" id="HoraFin" name='HoraFin' class="form-control form-control-user" min="07:30" max="18:00" required onchange="diaSemana(); dias();">
+                                                    <label for="text-red">Entre 7:30am y 18:00pm</label>
                                                 </div>
-                                                <div class="form-group row">
-                                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Sede</label>
-                                                        <input type="text" id="Sede" name='Sede' class="form-control form-control-user">
-                                                    </div>
-                                                    <div class="col-sm-6 mb-3 mb-sm-0">
-                                                        <label for="">Equipo</label>
-                                                        <input type="text" id="Equipo" name='Equipo' class="form-control form-control-user">
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col-sm-6 mb-3 mb-sm-0">
 
-                                                    </div>
+                                                    <select class="form-control my-select" name="Sede" id="Sede">
+                                                        <!-- <select class="form-control my-select" name="Sede" id="Sede" onchange="colsutarequipo(this.value)"> -->
+                                                        <!--  <select class="form-control my-select" name="Sede" id="Sede" onchange="valueselect(this.value);"> -->
+                                                        <option value=" " default>Seleccione sede:</option>
+                                                        <?php
+
+                                                        foreach ($sedes as  $sede) : ?>
+                                                            <option value="<?= $sede['id'] ?>"><?= $sede['nombre'] ?></option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+
                                                 </div>
-                                                <input type="submit" class="btn btn-success btn-user btn-block" name="Boton" value="Guardar">
+                                                <div class="col-sm-6 mb-3 mb-sm-0">
 
-                                                <script type="text/javascript">
-                                                    function diaSemana() {
-                                                        var Fa = new Date();
-                                                        var Fr = document.getElementById("Fecha");
-                                                        var hf = document.getElementById("HoraFin").value;
-                                                        if (Fr.valueAsDate.getDay() == 6) alertaf(te = "El día DOMINGO no se labora");
-                                                        if (Fa.getDate() > (Fr.valueAsDate.getDate() + 1)) alertaf(te = "la fecha reserva debe ser mayor o igual a la actual");
-                                                        if (Fr.valueAsDate.getDay() == 5 && hf > "12:00") alertaf(te = "El día SABADO horario hasta las 12:00");
-                                                        if (Fr.valueAsDate.getDay() != 5 && hf > "18:00") alertaf(te = "la hora final debe ser menor o igual a 18:00");
-                                                    }
+                                                    <select class="form-control my-select" name="equipo" id="equipo">
+                                                        <option value=" " default>Seleccione equipo:</option>
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
+                                                        <option value="4">4</option>
+                                                        <option value="5">5</option>
 
-                                                    function dias() {
-                                                        var Fa = new Date();
-                                                        var Fr = document.getElementById("Fecha");
-                                                        var hf = document.getElementById("HoraFin").value;
-                                                        var hi = document.getElementById("HoraIni").value;
-                                                        if (Fa.getDate() == (Fr.valueAsDate.getDate() + 1) && parseInt(hi) < Fa.getHours()) alertaf(te = "la hora debe ser mayor a la actual");
-                                                        if (hf <= hi) alertaf(te = "La hora inicial no puede ser mayor o igual a la final");
-                                                    }
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <input type="submit" class="btn btn-success btn-user btn-block" name="Boton" value="Guardar">
 
-                                                    function horas() {
-                                                        var Fa = new Date();
-                                                        var Fr = document.getElementById("Fecha");
-                                                        var hi = document.getElementById("HoraIni").value;
-                                                        if (hi < "07:00") alertaf(te = "la hora inicial debe ser mayor o igual a las 07:00");
-                                                        if (Fr.valueAsDate.getDay() == 5 && hi > "11:30") alertaf(te = "El dia Sabado la hora maxima es 11:30");
-                                                        if (Fr.valueAsDate.getDay() != 5 && hi > "17:30") alertaf(te = "la hora maxima es hasta las 17:30");
-                                                    }
+                                            <script type="text/javascript">
+                                                function colsutarequipo(elemento) {
+                                                    console.log(elemento);
+                                                    $.ajax({
+                                                        type: 'POST',
+                                                        // url: '../../Control/controlEquipo.php/consultarEquipoSede',
+                                                        url: 'registrarReserva.php',
+                                                        data: {
+                                                            idSede: elemento
 
-                                                    function alertaf(te) {
-                                                        swal({
-                                                            title: "Oops...",
-                                                            text: te + "!",
-                                                            type: "error",
-                                                        });
-                                                    }
-                                                </script>
-                                            </form>
-                                        <?php } ?>
+                                                        },
+                                                        success: function(respuesta) {
+                                                            console.log('resp ' + respuesta)
+                                                        }
+                                                    });
+
+                                                }
+                                                //function valueselect(myval) {
+
+                                                // window.location.href="registrarReserva.php?i="+myval;
+                                                // }
+
+                                                function diaSemana() {
+                                                    var Fa = new Date();
+                                                    var Fr = document.getElementById("Fecha");
+                                                    var hf = document.getElementById("HoraFin").value;
+                                                    if (Fr.valueAsDate.getDay() == 6) alertaf(te = "El día DOMINGO no se labora");
+                                                    if (Fa.getDate() > (Fr.valueAsDate.getDate() + 1)) alertaf(te = "la fecha reserva debe ser mayor o igual a la actual");
+                                                    if (Fr.valueAsDate.getDay() == 5 && hf > "12:00") alertaf(te = "El día SABADO horario hasta las 12:00");
+                                                    if (Fr.valueAsDate.getDay() != 5 && hf > "18:00") alertaf(te = "la hora final debe ser menor o igual a 18:00");
+                                                }
+
+                                                function dias() {
+                                                    var Fa = new Date();
+                                                    var Fr = document.getElementById("Fecha");
+                                                    var hf = document.getElementById("HoraFin").value;
+                                                    var hi = document.getElementById("HoraIni").value;
+                                                    if (Fa.getDate() == (Fr.valueAsDate.getDate() + 1) && parseInt(hi) < Fa.getHours()) alertaf(te = "la hora debe ser mayor a la actual");
+                                                    if (hf <= hi) alertaf(te = "La hora inicial no puede ser mayor o igual a la final");
+                                                }
+
+                                                function horas() {
+                                                    var Fa = new Date();
+                                                    var Fr = document.getElementById("Fecha");
+                                                    var hi = document.getElementById("HoraIni").value;
+                                                    if (hi < "07:00") alertaf(te = "la hora inicial debe ser mayor o igual a las 07:00");
+                                                    if (Fr.valueAsDate.getDay() == 5 && hi > "11:30") alertaf(te = "El dia Sabado la hora maxima es 11:30");
+                                                    if (Fr.valueAsDate.getDay() != 5 && hi > "17:30") alertaf(te = "la hora maxima es hasta las 17:30");
+                                                }
+
+                                                function alertaf(te) {
+                                                    swal({
+                                                        title: "Oops...",
+                                                        text: te + "!",
+                                                        type: "error",
+                                                    });
+                                                }
+                                            </script>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -410,3 +445,7 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
     <!-- Custom scripts for all pages-->
     <script src="../../js/sb-admin-2.min.js"></script>
 </body>
+
+<script>
+
+</script>

@@ -6,10 +6,19 @@ include("../../Modelo/Reserva.php");
 include("../../Control/ControlReserva.php");
 include("../../Control/ControlEquipo.php");
 
-$bot = $_POST['Boton'];
-$id = $_POST['id'];
+
+if (isset($_POST['Boton'])  && !empty($_POST['Boton'])) {
+    $bot = $_POST['Boton'];
+} else {
+    $bot = '';
+
+   
+}
+
+
 try {
     if ($bot == "Consultar") {
+        $id = $_POST['id'];
         $objReserva = new Reserva($id, '', '', '', '', '', '', '', '', '');
         $objCtrReserva = new ControlReserva($objReserva);
         $objRes = $objCtrReserva->consultarReserva();
@@ -45,6 +54,7 @@ try {
             }
         }
     } elseif ($bot == "Cancelar Reserva") {
+        $id = $_POST['id'];
         $estado = "C";
         $objReserva = new Reserva($id, '', '', '', '', '', '', '',$estado);
         $objCtrReserva = new ControlReserva($objReserva);
@@ -200,9 +210,9 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                     <div id="collapseMan" class="collapse" aria-labelledby="headingMan" data-parent="#accordionSidebar">
                         <div class="bg-white py-2 collapse-inner rounded">
                             <h6 class="collapse-header">Menu Fallas:</h6>
-                            <a class="collapse-item" href="../Vista/Mantenimiento/registroMantenimiento.php">Registrar</a>
-                            <a class="collapse-item" href="../Vista/Mantenimiento/salidaMantenimiento.php">Solucionar</a>
-                            <a class="collapse-item" href="../Vista/Mantenimiento/consultarMantenimiento.php">Consultar</a>
+                            <a class="collapse-item" href="../Falla/registrarFalla.php">Registrar</a>
+                            <a class="collapse-item" href="../Falla/solucionarFalla.php">Solucionar</a>
+                            <a class="collapse-item" href="../Falla/consultarFalla.php">Consultar</a>
                         </div>
                     </div>
                 </li>

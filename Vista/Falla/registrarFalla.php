@@ -2,33 +2,35 @@
 error_reporting(E_ALL ^ E_NOTICE);
 session_start();
 
-include("../../Modelo/Sede.php");
-include("../../Control/ControlSede.php");
-include("../../Control/ControlConexion.php");
+include("../../Modelo/Falla.php");
+include("../../Modelo/Reserva.php");
+include("../../Control/ControlFalla.php");
+include("../../Control/ControlReserva.php");
 
+$usuario = $_SESSION['idUsuario'];
 if (isset($_POST['Boton'])  && !empty($_POST['Boton'])) {
     $bot = $_POST['Boton'];
-} else{
-    $bot='';
+} else {
+    $bot = '';
 }
 
-
-
 try {
-    $objSede = new Sede('', '', '', '');
-    $objCtrSede = new ControlSede($objSede);
-    $Sedes = $objCtrSede->consultarSedes();
 
-    if ($bot== "Guardar") {
-        $codigo = $_POST['codigoS'];
-        $nombre = $_POST['nombreS'];
-        $objSede = new Sede($codigo,$nombre,'','');
-        $objCtrSede = new ControlSede($objSede);
-        $Sedes = $objCtrSede->modificarSede();
+    $objReserva = new Reserva('', '', '', '', '', '', '', $usuario, '');
+    $objCtrReserva = new controlReserva($objReserva);
+    $reservas = $objCtrReserva->consultarUsuarioReserva();
+
+    if ($bot == "Guardar") {
+        $codigoR = $_POST['codigoM'];
+        $falla = $_POST['falla'];
+        $objFalla = new Falla('', $codigoR, $falla, '', $usuario, '', '', '');
+        $objCtrFalla = new ControlFalla($objFalla);
+        $res = $objCtrFalla->GuardarFalla();
     }
 } catch (Exception $objExp) {
     echo 'Se presentó una excepción: ', $objExp->getMessage(), '\n';
 }
+
 isset($_SESSION['correo'])  ? $_SESSION['correo'] : header('Location: ../../index.php');
 isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../index.php');
 ?>
@@ -43,7 +45,7 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Consultar Sedes</title>
+    <title>Registrar Falla</title>
     <!-- ALERTAS-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.0/sweetalert2.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.0/sweetalert2.js"></script>
@@ -58,19 +60,20 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
 </head>
 
 <body id="page-top">
-    <?php if ($bot == "Consultar" && empty($id)) { ?>
+    <?php if ($bot == "Guardar" && $res = "ok") { ?>
         <script>
             alerta();
 
             function alerta() {
                 swal({
-                    title: "Oops...",
-                    text: "Equipo no registrado!",
-                    type: "warning",
+                    title: "La falla fue registrada",
+                    type: "success",
                 });
             }
         </script>
-    <?php } ?>
+    <?php } {
+        # code...
+    } ?>
     <!-- Page Wrapper -->
     <div id="wrapper">
 
@@ -94,74 +97,76 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                     <i class="fas fa-home "></i>
                     <span>Home</span></a>
             </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-            <!-- Nav Item - Pages Collapse Menu Equipos-->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEqui" aria-expanded="true" aria-controls="collapseEqui">
-                    <i class="fas fa-laptop fa-cog"></i>
-                    <span>Sedes</span>
-                </a>
-                <div id="collapseEqui" class="collapse" aria-labelledby="headingEqui" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Menu Sedes</h6>
-                        <a class="collapse-item" href="registrarSede.php">Registrar</a>
+            <!-- VALIDACION ROLES -->
+            <?php if ($_SESSION['rolUsuario'] == "1") { ?>
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReser" aria-expanded="true" aria-controls="collapseReser">
+                        <i class="fas fa-fw fa-table"></i>
+                        <span>Sedes</span>
+                    </a>
+                    <div id="collapseReser" class="collapse" aria-labelledby="headingReser" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Menu Sedes:</h6>
+                            <a class="collapse-item" href="../Sede/registrarSede.php">Registrar</a>
+                            <a class="collapse-item" href="../Sede/consultarSede.php">Consultar</a>
+                            <a class="collapse-item" href="../Sede/modificarSede.php">Modificar</a>
+                        </div>
                     </div>
-                </div>
-            </li>
+                </li>
+                <!-- Divider -->
+                <hr class="sidebar-divider">
 
-
-            <!-- Nav Item - Pages Collapse Menu Equipos-->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEqui" aria-expanded="true" aria-controls="collapseEqui">
-                    <i class="fas fa-laptop fa-cog"></i>
-                    <span>Equipo</span>
-                </a>
-                <div id="collapseEqui" class="collapse" aria-labelledby="headingEqui" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Menu Equipo</h6>
-                        <a class="collapse-item" href="../Equipo/registrarEquipo.php">Registrar</a>
-                        <a class="collapse-item" href="../Equipo/modificarEquipo.php">Modificar</a>
-                        <a class="collapse-item" href="../Equipo/mostrarEquipos.php">Todos</a>
+                <!-- Nav Item - Pages Collapse Menu Equipos-->
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEqui" aria-expanded="true" aria-controls="collapseEqui">
+                        <i class="fas fa-laptop fa-cog"></i>
+                        <span>Equipo</span>
+                    </a>
+                    <div id="collapseEqui" class="collapse" aria-labelledby="headingEqui" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Menu Equipo</h6>
+                            <a class="collapse-item" href="registrarEquipo.php">Registrar</a>
+                            <a class="collapse-item" href="modificarEquipo.php">Modificar</a>
+                            <a class="collapse-item" href="mostrarEquipos.php">Todos</a>
+                        </div>
                     </div>
-                </div>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReser" aria-expanded="true" aria-controls="collapseReser">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Reserva</span>
-                </a>
-                <div id="collapseReser" class="collapse" aria-labelledby="headingReser" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Menu Reserva:</h6>
-                        <a class="collapse-item" href="../Reserva/registrarReserva.php">Registrar</a>
-                        <a class="collapse-item" href="../Reserva/consultarReserva.php">Consultar</a>
-                        <a class="collapse-item" href="../Reserva/modificarReserva.php">Modificar</a>
+                </li>
+            <?php }
+            if ($_SESSION['rolUsuario'] == "2") { ?>
+                <hr class="sidebar-divider">
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReser" aria-expanded="true" aria-controls="collapseReser">
+                        <i class="fas fa-fw fa-table"></i>
+                        <span>Reserva</span>
+                    </a>
+                    <div id="collapseReser" class="collapse" aria-labelledby="headingReser" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Menu Reserva:</h6>
+                            <a class="collapse-item" href="../Reserva/registrarReserva.php">Registrar</a>
+                            <a class="collapse-item" href="../Reserva/consultarReserva.php">Consultar</a>
+                            <a class="collapse-item" href="../Reserva/modificarReserva.php">Modificar</a>
+                        </div>
                     </div>
-                </div>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Nav Item - Charts -->
-            <li class="nav-item ">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
-                    <i class="fas fa-fw fa-ambulance"></i>
-                    <span>Fallas</span>
-                </a>
-                <div id="collapseMan" class="collapse" aria-labelledby="headingMan" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Menu Fallas:</h6>
-                        <a class="collapse-item" href="../Falla/registrarFalla.php">Registrar</a>
-                        <a class="collapse-item" href="../Falla/solucionarFalla.php">Solucionar</a>
-                        <a class="collapse-item" href="../Falla/consultarFalla.php">Consultar</a>
+                </li>
+                <!-- Divider -->
+                <hr class="sidebar-divider">
+            <?php }
+            if ($_SESSION['rolUsuario'] == "1") {  ?>
+                <!-- Nav Item - Charts -->
+                <li class="nav-item ">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMan" aria-expanded="true" aria-controls="collapseMan">
+                        <i class="fas fa-fw fa-ambulance"></i>
+                        <span>Fallas</span>
+                    </a>
+                    <div id="collapseMan" class="collapse" aria-labelledby="headingMan" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Menu Fallas:</h6>
+                            <a class="collapse-item" href="../Falla/solucionarFalla.php">Solucionar</a>
+                            <a class="collapse-item" href="../Mantenimiento/consultarMantenimiento.php">Consultar</a>
+                        </div>
                     </div>
-                </div>
-            </li>
-
+                </li>
+            <?php } ?>
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -234,23 +239,28 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                                 <div class="col-lg-8">
                                     <div class="p-5">
                                         <div class="text-center">
-                                            <h1 class="h4 text-gray-900 mb-4">Sedes</h1>
+                                            <h1 class="h4 text-gray-900 mb-4">Registrar Falla</h1>
                                         </div>
 
                                         <table class="table table-bordered" data-pagination="true" data-search="true" data-toggle="table" data-url="controller/fetch.php" data-pagination="true" data-editable-url="controller/update.php">
                                             <thead>
                                                 <tr>
-                                                    <th>Codigo</th>
-                                                    <th>Nombre</th>
+                                                    <th>Codigo Reserva</th>
+                                                    <th>Fecha de Reserva </th>
+                                                    <th>Codigo Equipo</th>
+                                                    <th>Sede</th>
+                                                    <th>Falla</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php foreach ($Sedes as $sede) : ?>
+                                                <?php foreach ($reservas as $reserva) : ?>
                                                     <tr>
-                                                        <td><?= $sede['id'] ?></td>
-                                                        <td><?= $sede['nombre'] ?></td>
+                                                        <td><?= $reserva['idReserva'] ?></td>
+                                                        <td><?= $reserva['fechaRes'] ?></td>
+                                                        <td><?= $reserva['idEquipo'] ?></td>
+                                                        <td><?= $reserva['sede'] ?></td>
                                                         <td>
-                                                            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#exampleModal" onclick="saveSede('<?= $sede['id'] ?>');">
+                                                            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#exampleModal" onclick="saveFalla('<?= $reserva['idReserva'] ?>');">
                                                                 <i class='fas fa-edit'></i>
                                                             </button>
                                                         </td>
@@ -273,16 +283,16 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Nombre Sede</h5>
+                                        <h5 class="modal-title" id="exampleModalLabel">Reporte de falla</h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
-                                    <form class="user" method="Post" action="consultarSede.php">
+                                    <form class="user" method="Post" action="registrarFalla.php">
                                         <div class="modal-body">
                                             <div class="col-md-12">
-                                                <textarea name="nombreS" id="nombreS"></textarea>
-                                                <input type="hidden" name="codigoS" id="codigoS" value="">
+                                                <textarea name="falla" id="falla"></textarea>
+                                                <input type="hidden" name="codigoM" id="codigoM" value="">
                                             </div>
                                         </div>
 
@@ -300,56 +310,50 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                     <!-- End of Main Content -->
 
                 </div>
-                <!-- /.container-fluid -->
+                <!-- End of Content Wrapper -->
 
             </div>
-            <!-- End of Main Content -->
+            <!-- End of Page Wrapper -->
 
-        </div>
-        <!-- End of Content Wrapper -->
+            <!-- Scroll to Top Button-->
+            <a class="scroll-to-top rounded" href="#page-top">
+                <i class="fas fa-angle-up"></i>
+            </a>
 
-    </div>
-    <!-- End of Page Wrapper -->
-
-    <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
-
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Cerrar session ?</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body"><?php echo $_SESSION['nombre'] ?> desea cerrar session ?</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="../../index.php">Logout</a>
+            <!-- Logout Modal-->
+            <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Cerrar session ?</h5>
+                            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body"><?php echo $_SESSION['nombre'] ?> desea cerrar session ?</div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                            <a class="btn btn-primary" href="../../index.php">Logout</a>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Bootstrap core JavaScript-->
-    <script src="../../vendor/jquery/jquery.min.js"></script>
-    <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+            <!-- Bootstrap core JavaScript-->
+            <script src="../../vendor/jquery/jquery.min.js"></script>
+            <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Core plugin JavaScript-->
-    <script src="../../vendor/jquery-easing/jquery.easing.min.js"></script>
+            <!-- Core plugin JavaScript-->
+            <script src="../../vendor/jquery-easing/jquery.easing.min.js"></script>
 
-    <!-- Custom scripts for all pages-->
-    <script src="../../js/sb-admin-2.min.js"></script>
+            <!-- Custom scripts for all pages-->
+            <script src="../../js/sb-admin-2.min.js"></script>
 
 </body>
 <script>
-    function saveSede(sede) {
-        var codigo = document.getElementById('codigoS');
-        console.log(sede)
-        codigo.value = sede;
+    function saveFalla(reserva) {
+        var codigo = document.getElementById('codigoM');
+        console.log(reserva)
+        codigo.value = reserva;
     }
 </script>

@@ -8,23 +8,13 @@ include("../../Control/ControlEquipo.php");
 include("../../Control/ControlSede.php");
 
 
-if (isset($_POST['Boton'])) {
+if (isset($_POST['Boton']) && !empty($_POST['Boton'])) {
     $bot = $_POST['Boton'];
-    $id = $_POST['id'];
-    $codigo = $_POST['Codigo'];
-    $marca = $_POST['Marca'];
-    $modelo = $_POST['Modelo'];
-    $tipo =  $_POST['Tipo'];
-    $sede = $_POST['sede'];
-    $estado = $_POST['Estado'];
-    $fechaRe = $_POST['FechaRe'];
-    $usuario = $_SESSION['idUsuario'];
+    
 
-    if ($estado == "Inactivo") {
-        $fechaInC = date("Y-m-d");
-    }
 } else {
     $bot = '';
+    $id = '';
 }
 
 
@@ -32,6 +22,7 @@ if (isset($_POST['Boton'])) {
 try {
 
     if ($bot == "Consultar") {
+        $codigo = $_POST['Codigo'];
         $objEquipo = new Equipo('', $codigo, '', '', '', '', '', '', '');
         $objCtrEquipo = new ControlEquipo($objEquipo);
         $objEquipo = $objCtrEquipo->consultarEquipo();
@@ -47,6 +38,18 @@ try {
         $usuario = $objEquipo->getUsuario();
     }
     if ($bot == "Modificar") {
+        $id = $_POST['id'];
+        $codigo = $_POST['Codigo'];
+        $marca = $_POST['Marca'];
+        $modelo = $_POST['Modelo'];
+        $tipo =  $_POST['Tipo'];
+        $sede = $_POST['sede'];
+        $estado = $_POST['Estado'];
+        $fechaRe = $_POST['FechaRe'];
+        $usuario = $_SESSION['idUsuario'];
+        if ($estado == "Inactivo") {
+            $fechaInC = date("Y-m-d");
+        }
 
         $objSede = new Sede(0, $sede, '', '');
         $objCtrSede = new ControlSede($objSede);

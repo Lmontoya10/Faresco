@@ -11,22 +11,28 @@ date_default_timezone_set("America/Bogota");
 $HoraActual = date("G");  // Hora actual en 24 hrs del País
 $fcha = date("Y-m-d");
 
-$bot = $_POST['Boton'];
-$id = $_POST['id'];
-$FechaRes = $_POST['Fecha'];
-$HoraIni = $_POST['HoraIni'];
-$HoraFin = $_POST['HoraFin'];
-$Equipo = $_POST['Equipo'];
-$FechaReg = date("Y-m-d");
-$Usuario = $_SESSION['idUsuario'];
-$estad = $_POST['Estado'];
+if (isset($_POST['Boton'])  && !empty($_POST['Boton'])) {
+    $bot = $_POST['Boton'];
+} else {
+    $bot = '';
+    $est = '';
+   
+}
+$msj='';
+
+if ($bot == "Consultar"  ) {
+    $msj='';
+    $id = $_POST['id'];
+}
 
 try {
     if ($bot == "Consultar") {
-        $objReserva = new Reserva($id, '', '', '', '', '', '', '','');
+
+        $objReserva = new Reserva($id, '', '', '', '', '', '', '', '');
         $objCtrReserva = new ControlReserva($objReserva);
-        $objRes = $objCtrReserva->consultarReserva(); 
-        if(!empty($objRes->getFechaRes())){
+        $objRes = $objCtrReserva->consultarReserva();
+        
+        if (!empty($objRes->getFechaRes())) {
             $idRe = $objRes->getIdReserva();
             $usuario = $objRes->getUsuario();
             $Equipo = $objRes->getEquipo();
@@ -36,14 +42,14 @@ try {
             $fechaReg = $objRes->getFechaReg();
             $est = $objRes->getEstado();
             $sede = $objRes->getSede();
-       
+
 
             switch ($est) {
                 case "A":
                     $estado = "ACTIVA";
                     break;
                 case "C":
-                    $estado= "CANCELADA";
+                    $estado = "CANCELADA";
                     break;
                 case "E":
                     $estado = "EN USO";
@@ -57,10 +63,19 @@ try {
             }
         }
     } elseif ($bot == "Modificar Reserva") {
-     
-            $objReserva = new Reserva($id, $FechaRes, $HoraIni, $HoraFin, $FechaReg, $Equipo, $Usuario, $estad,$Sede);
-            $objCtrReserva = new ControlReserva($objReserva);
-            $msj = $objCtrReserva->actualizarReserva();
+        $id = $_POST['id'];
+        $FechaRes = $_POST['Fecha'];
+        $HoraIni = $_POST['HoraIni'];
+        $HoraFin = $_POST['HoraFin'];
+        $Equipo = $_POST['Equipo'];
+        $FechaReg = date("Y-m-d");
+        $Usuario = $_SESSION['idUsuario'];
+        $est = $_POST['Estado'];
+        $Sede = $_POST['Estado'];
+
+        $objReserva = new Reserva($id, $FechaRes, $HoraIni, $HoraFin, $FechaReg, $Equipo, $Usuario, $est, $Sede);
+        $objCtrReserva = new ControlReserva($objReserva);
+        $msj = $objCtrReserva->actualizarReserva();
     }
 } catch (Exception $objExp) {
     echo 'Se presentó una excepción: ', $objExp->getMessage(), '\n';
@@ -89,33 +104,35 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
     <link href="../../css/sb-admin-2.min.css" rel="stylesheet">
 
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
-
+    <link href="../../estilo/myStyle.css" rel="stylesheet">
 </head>
 
 <body id="page-top">
-    <?php  if(empty($fechaRes) && $bot == "Consultar"){ ?>
-            <script>
-                alerta();
-                function alerta() {
-                    swal({
-                        title: "Oops...",
-                        text: "No existe la reserva <?php echo $id ?>!",
-                        type: "warning",
-                    });
-                }
-            </script>
-        <?php } elseif($est != "A" && $bot == "Consultar" ) { ?>
-            <script>
-                alerta1();
-                function alerta1() {
-                    swal({
-                        title: "Oops...",
-                        text: "No se puede modificar reserva por <?php echo $estado ?>!",
-                        type: "warning",
-                    });
-                }
-            </script>
-        <?php }elseif ($msj !="" && $bot == "Modificar Reserva") { ?>
+    <?php if (empty($fechaRes) && $bot == "Consultar") { ?>
+        <script>
+            alerta();
+
+            function alerta() {
+                swal({
+                    title: "Oops...",
+                    text: "No existe la reserva <?php echo $id ?>!",
+                    type: "warning",
+                });
+            }
+        </script>
+    <?php } elseif ($est != "A" && $bot == "Consultar") { ?>
+        <script>
+            alerta1();
+
+            function alerta1() {
+                swal({
+                    title: "Oops...",
+                    text: "No se puede modificar reserva por <?php echo $estado ?>!",
+                    type: "warning",
+                });
+            }
+        </script>
+    <?php } elseif ($msj != "" && $bot == "Modificar Reserva") { ?>
         <script>
             alerta2();
 
@@ -144,8 +161,7 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
     <!-- Page Wrapper -->
     <div id="wrapper">
         <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-dark sidebar sidebar-dark accordion" id="accordionSidebar">
-
+        <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar">
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="../../home.php">
                 <div class="sidebar-brand-icon rotate-n-15">
@@ -236,7 +252,7 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-dark topbar mb-4 static-top shadow">
+                <nav class="navbar navbar-expand navbar-light  topbar mb-4 static-top shadow" id="navbar-style">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -279,7 +295,8 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                                 <div class="col-lg-8">
                                     <div class="p-5">
                                         <div class="text-center">
-                                            <?php if ($bot == "Consultar" && $est == "A") { ?>
+                                            <?php 
+                                            if ($bot == "Consultar" && $est == "A") { ?>
                                                 <h1 class="h4 text-gray-900 mb-4">Modificar Reserva</h1>
                                             <?php } else { ?>
                                                 <h1 class="h4 text-gray-900 mb-4">Reserva a Modificar</h1>
@@ -331,7 +348,7 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                                                         <label>Sede</label>
                                                         <input id="Sede" name='Sede' class="form-control form-control-user" value="<?php echo $sede; ?>">
                                                     </div>
-                                                    
+
                                                 </div>
                                                 <input type="submit" class="btn btn-success btn-user btn-block" name="Boton" value="Modificar Reserva">
                                                 <script type="text/javascript">
@@ -339,10 +356,10 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                                                         var Fa = new Date();
                                                         var Fr = document.getElementById("Fecha");
                                                         var hf = document.getElementById("HoraFin").value;
-                                                        if (Fr.valueAsDate.getDay() == 6) alertaf(te="El día DOMINGO no se labora");
-                                                        if (Fa.getDate() > (Fr.valueAsDate.getDate() + 1)) alertaf(te="la fecha reserva debe ser mayor o igual a la actual");
-                                                        if (Fr.valueAsDate.getDay() == 5 && hf > "12:00") alertaf(te="El día SABADO horario hasta las 12:00");
-                                                        if (Fr.valueAsDate.getDay() != 5 && hf > "18:00") alertaf(te="la hora final debe ser menor o igual a 18:00");
+                                                        if (Fr.valueAsDate.getDay() == 6) alertaf(te = "El día DOMINGO no se labora");
+                                                        if (Fa.getDate() > (Fr.valueAsDate.getDate() + 1)) alertaf(te = "la fecha reserva debe ser mayor o igual a la actual");
+                                                        if (Fr.valueAsDate.getDay() == 5 && hf > "12:00") alertaf(te = "El día SABADO horario hasta las 12:00");
+                                                        if (Fr.valueAsDate.getDay() != 5 && hf > "18:00") alertaf(te = "la hora final debe ser menor o igual a 18:00");
                                                     }
 
                                                     function dias() {
@@ -350,23 +367,23 @@ isset($_SESSION['password']) ? $_SESSION['password'] : header('Location: ../../i
                                                         var Fr = document.getElementById("Fecha");
                                                         var hf = document.getElementById("HoraFin").value;
                                                         var hi = document.getElementById("HoraIni").value;
-                                                        if (Fa.getDate() == (Fr.valueAsDate.getDate() + 1) && parseInt(hi) < Fa.getHours()) alertaf(te="la hora debe ser mayor a la actual");
-                                                        if (hf <= hi) alertaf(te="La hora inicial no puede ser mayor o igual a la final");
+                                                        if (Fa.getDate() == (Fr.valueAsDate.getDate() + 1) && parseInt(hi) < Fa.getHours()) alertaf(te = "la hora debe ser mayor a la actual");
+                                                        if (hf <= hi) alertaf(te = "La hora inicial no puede ser mayor o igual a la final");
                                                     }
 
                                                     function horas() {
                                                         var Fa = new Date();
                                                         var Fr = document.getElementById("Fecha");
                                                         var hi = document.getElementById("HoraIni").value;
-                                                        if (hi < "07:00") alertaf(te="la hora inicial debe ser mayor o igual a las 07:00");
-                                                        if (Fr.valueAsDate.getDay() == 5 && hi > "11:30") alertaf(te="El dia Sabado la hora minima es 11:30");
-                                                        if (Fr.valueAsDate.getDay() != 5 && hi > "17:30") alertaf(te="la hora minima es hasta las 17:30");
+                                                        if (hi < "07:00") alertaf(te = "la hora inicial debe ser mayor o igual a las 07:00");
+                                                        if (Fr.valueAsDate.getDay() == 5 && hi > "11:30") alertaf(te = "El dia Sabado la hora minima es 11:30");
+                                                        if (Fr.valueAsDate.getDay() != 5 && hi > "17:30") alertaf(te = "la hora minima es hasta las 17:30");
                                                     }
 
                                                     function alertaf(te) {
                                                         swal({
                                                             title: "Oops...",
-                                                            text: te+"!",
+                                                            text: te + "!",
                                                             type: "error",
                                                         });
                                                     }

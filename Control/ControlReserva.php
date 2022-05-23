@@ -26,10 +26,6 @@ class controlReserva
         $Estado = $this->objReserva->getEstado();
 
 
-        // $equipo = $this->disponibles($FechaRes, $HoraFin, $HoraIni);
-        // $cod = $equipo->codigo;
-
-
         $objConexion = new ControlConexion();
         $conn = $objConexion->conectar();
 
@@ -42,6 +38,7 @@ class controlReserva
             array(&$HoraFin, SQLSRV_PARAM_IN), array(&$FechaReg, SQLSRV_PARAM_IN),
             array(&$Estado, SQLSRV_PARAM_IN), array(&$Sede, SQLSRV_PARAM_IN)
         );
+
 
         /* Execute the query. */
         $stmt = sqlsrv_query($conn, $SP, $params);
@@ -270,6 +267,80 @@ class controlReserva
 
 
         return $equipo;
+    }
+
+
+    function consultarUsuarioReserva()
+    {
+
+        $FechaRes = date("Y-m-d");
+        $Usuario = $this->objReserva->getUsuario();
+        $oper = "U";
+        try {
+            $objConexion = new ControlConexion();
+            $conn = $objConexion->conectar();
+
+            $SP = "{call sp_Reserva( ?, ?, ?,?,?,?,?,?,?,?)}";
+
+            $params = array(
+                array($oper, SQLSRV_PARAM_IN),
+                array(0, SQLSRV_PARAM_IN), array(&$Usuario, SQLSRV_PARAM_IN),
+                array(0, SQLSRV_PARAM_IN), array(&$FechaRes, SQLSRV_PARAM_IN),
+                array("", SQLSRV_PARAM_IN), array("", SQLSRV_PARAM_IN),
+                array("", SQLSRV_PARAM_IN), array("", SQLSRV_PARAM_IN),
+                array(0, SQLSRV_PARAM_IN)
+            );
+
+            /* Execute the query. */
+            $stmt = sqlsrv_query($conn, $SP, $params);
+
+            if ($stmt === false) {
+                echo "Error ejecutando consulta.\n";
+                die(print_r(sqlsrv_errors(), true));
+            }
+            $reservas= array();
+
+            while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                /*
+                echo"<pre>";
+                print_r($row);
+                echo"</pre>";
+                die(); */
+    
+                $reservas[] = array(
+                    'idReserva'=> $row['idReserva'],
+                    'idUsuario'=> $row['idUsuario'],
+                    'idEquipo'=> $row['IdEquipo'],
+                    'fechaRes'=>$row['FechaRes'],
+                    'horaInicio'=>$row['HoraInicio'],
+                    'horaFin'=>$row['horaFin'],
+                    'fechaReq'=>$row['FechaReg'],
+                    'estado'=>$row['Estado'],
+                    'sede'=>$row['descripcion']
+                );
+            }
+            /* while (sqlsrv_fetch($stmt)) {
+
+                $this->objReserva->setIdReserva(sqlsrv_get_field($stmt, 0));
+                $this->objReserva->setUsuario(sqlsrv_get_field($stmt, 1));
+                $this->objReserva->setEquipo(sqlsrv_get_field($stmt, 2));
+                $this->objReserva->setFechaRes(sqlsrv_get_field($stmt, 3));
+                $this->objReserva->setHoraIni(sqlsrv_get_field($stmt, 4));
+                $this->objReserva->setHorafin(sqlsrv_get_field($stmt, 5));
+                $this->objReserva->setFechaReg(sqlsrv_get_field($stmt, 6));
+                $this->objReserva->setEstado(sqlsrv_get_field($stmt, 7));
+                $this->objReserva->setSede(sqlsrv_get_field($stmt, 8));
+            } */
+
+            /*Free the statement and connection resources. */
+            sqlsrv_free_stmt($stmt);
+            sqlsrv_close($conn);
+        } catch (Exception $e) {
+            echo "ERROR " . $e->getMessage() . "\n";
+        }
+        
+        return $reservas;
+       
     }
 
     }

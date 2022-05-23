@@ -90,7 +90,6 @@ $porE = 0;
                             <h6 class="collapse-header">Menu Sedes</h6>
                             <a class="collapse-item" href="Vista/Sede/registrarSede.php">Registrar</a>
                             <a class="collapse-item" href="Vista/Sede/consultarSede.php">Consultar</a>
-                            <a class="collapse-item" href="Vista/Sede/modificarSede.php">Modificar</a>
                         </div>
                     </div>
                 </li>
@@ -135,7 +134,7 @@ $porE = 0;
                     </div>
                 </li>
             <?php } ?>
-            <?php if ($_SESSION['rolUsuario'] == "1") { ?>
+            <?php  if ($_SESSION['rolUsuario'] == "1" || $_SESSION['rolUsuario'] == "2") { ?>
                 <!-- Divider -->
                 <hr class="sidebar-divider">
 
@@ -149,9 +148,11 @@ $porE = 0;
                     <div id="collapseMan" class="collapse" aria-labelledby="headingMan" data-parent="#accordionSidebar">
                         <div class="bg-white py-2 collapse-inner rounded">
                             <h6 class="collapse-header">Menu Fallas:</h6>
-                            <a class="collapse-item" href="Vista/Mantenimiento/registroMantenimiento.php">Registrar</a>
-                            <a class="collapse-item" href="Vista/Mantenimiento/salidaMantenimiento.php">Solucionar</a>
-                            <a class="collapse-item" href="Vista/Mantenimiento/consultarMantenimiento.php">Consultar</a>
+                            <a class="collapse-item" href="Vista/Falla/registrarFalla.php">Registrar</a>
+                            <?php if ($_SESSION['rolUsuario'] == "1") { ?>
+                            <a class="collapse-item" href="Vista/Falla/solucionarFalla.php">Solucionar</a>
+                            <a class="collapse-item" href="Vista/Falla/consultarFalla.php">Consultar</a>
+                            <?php } ?>
                         </div>
                     </div>
                 </li>
